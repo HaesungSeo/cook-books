@@ -5,13 +5,26 @@
 	- [설치 @rocky8.8](#설치-rocky88)
 	- [설치 @ubuntu 22.04 TLS](#설치-ubuntu-2204-tls)
 - [docker 명령어 예제](#docker-명령어-예제)
+	- [도커 기반 이미지 검색](#도커-기반-이미지-검색)
+	- [도커 이미지 다운로드](#도커-이미지-다운로드)
+	- [도커 이미지 리스트](#도커-이미지-리스트)
+	- [도커 컨테이너 이미지 변경사항 조회](#도커-컨테이너-이미지-변경사항-조회)
+	- [도커 이미지 삭제](#도커-이미지-삭제)
+	- [도커 이미지 로컬 파일로 추출](#도커-이미지-로컬-파일로-추출)
+	- [도커 이미지 파일 압축/해제](#도커-이미지-파일-압축해제)
+	- [도커 이미지 태깅](#도커-이미지-태깅)
 	- [docker image 로드하기 (파일)](#docker-image-로드하기-파일)
-	- [docker image 확인하기](#docker-image-확인하기)
-	- [docker image 로부터 instance 실행하기](#docker-image-로부터-instance-실행하기)
+	- [도커 컨테이너 실행](#도커-컨테이너-실행)
 		- [아래 예제는 5G\_Probe 의 xdr 을 mysql db로 로드한 docker 이미지를 실행하는 예제](#아래-예제는-5g_probe-의-xdr-을-mysql-db로-로드한-docker-이미지를-실행하는-예제)
-	- [docker image 의 instance 확인하기](#docker-image-의-instance-확인하기)
-	- [docker instance 재시작 하기](#docker-instance-재시작-하기)
+	- [도커 컨테이너 리스트](#도커-컨테이너-리스트)
+	- [도커 컨테이너 정지/재시작](#도커-컨테이너-정지재시작)
+	- [도커 컨테이너 삭제](#도커-컨테이너-삭제)
+	- [도커 컨테이너 IP주소 알아내기](#도커-컨테이너-ip주소-알아내기)
+	- [도커 컨테이너 instance 확인하기](#도커-컨테이너-instance-확인하기)
 	- [docker 로 msyql 서비스를 로드한 경우 아래와 같이 접속 가능](#docker-로-msyql-서비스를-로드한-경우-아래와-같이-접속-가능)
+	- [docker volume 삭제](#docker-volume-삭제)
+		- [볼륨 조회](#볼륨-조회)
+		- [사용하지 않는 볼륨 제거](#사용하지-않는-볼륨-제거)
 - [multi-architecture](#multi-architecture)
 	- [docker buildx](#docker-buildx)
 		- [private registry 의 ca.crt 정보를 복사](#private-registry-의-cacrt-정보를-복사)
@@ -136,40 +149,122 @@ docker compose version
 
 # docker 명령어 예제
 
+## 도커 기반 이미지 검색
+```
+docker search ubuntu 
+docker search centos
+```
+
+## 도커 이미지 다운로드
+```
+docker pull centos
+```
+
+## 도커 이미지 리스트
+```
+docker images
+```
+
+## 도커 컨테이너 이미지 변경사항 조회
+```
+docker diff <name>
+```
+
+## 도커 이미지 삭제
+```
+docker rmi <image>
+```
+
+## 도커 이미지 로컬 파일로 추출
+```
+docker save -o <output tar> <image name>
+```
+
+## 도커 이미지 파일 압축/해제
+```
+gzip <image tar> 
+gzip -d <image tgz>
+```
+
+## 도커 이미지 태깅
+```
+docker tag <image id> <image>
+```
+
 ## docker image 로드하기 (파일)
 
 ```
 docker load < skt_xdr_docker.tar.gz
 ```
 
-
-## docker image 확인하기
-
-```
-docker images
-```
-
-
-## docker image 로부터 instance 실행하기
+## 도커 컨테이너 실행
+생성포함, -it 옵션을 안 주면 시작이 안됨
 
 ### 아래 예제는 5G_Probe 의 xdr 을 mysql db로 로드한 docker 이미지를 실행하는 예제
 ```
 docker run --name xDR -p 3306:3306 -d -e MYSQL_ROOT_PASSWORD=1234 skt_xdr_docker
 ```
 
-## docker image 의 instance 확인하기
+## 도커 컨테이너 리스트
 ```
-docker container ls --all
+docker ps -a
 ```
 
-## docker instance 재시작 하기
+## 도커 컨테이너 정지/재시작
 ```
-docker start xDR
+docker (stop|restart) <name>
+```
+
+## 도커 컨테이너 삭제
+```
+docker rm [-f] <name> 
+docker kill <name>
+```
+
+## 도커 컨테이너 IP주소 알아내기
+```
+docker inspect <name> | grep "IPAddress"
+```
+
+## 도커 컨테이너 instance 확인하기
+```
+docker container ls --all
 ```
 
 ## docker 로 msyql 서비스를 로드한 경우 아래와 같이 접속 가능
 ```
 mysql -uxdr -p -h127.0.0.1 xDR
+```
+
+## docker volume 삭제
+볼륨을 이용하는 컨테이너(DB계열)의 경우 도커 프로세스 종료 후 볼륨은 자동삭제 되지 않는다.
+사용하지 않는 볼륨을 제거해야 디스크 공간을 확보할 수 있다.
+
+### 볼륨 조회
+```
+docker volume ls
+```
+
+### 사용하지 않는 볼륨 제거
+컨테이너와 연결관계가 없는 볼륨 삭제
+```
+docker volume prune
+```
+
+실행예)
+root@hsseo-registry-backup:~# docker volume prune 
+```
+WARNING! This will remove all local volumes not used by at least one container. 
+Are you sure you want to continue? [y/N] y 
+Deleted Volumes: 
+be2e1d6676eaa836c3d30f73b7ff5e9ca1ec6d2ea28db1816d2da23bf089a857 
+1d5dfc715ab71dfe14be067a72e7047ab186467b27f64086e2578e09c545c865 
+
+...
+bc451e7a468f35c7578c283322269b0b89bae8aeffa4fa8a11c795b7764f8a5b 
+599311dd14315655e6ee24cf427ccdc355aa1840978719941e0bed20590249d2 
+Total reclaimed space: 105.1GB 
+root@hsseo-registry-backup:~#
 ```
 
 # multi-architecture 
