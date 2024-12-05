@@ -215,8 +215,8 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
 EOM
     sudo cp build/appstream-$ver.repo /etc/yum.repos.d/
 
-echo "##### build baseos-$ver.repo"
-cat<<EOM > build/baseos-$ver.repo
+    echo "##### build baseos-$ver.repo"
+    cat<<EOM > build/baseos-$ver.repo
 [baseos-$ver]
 name=Rocky Linux $ver - BaseOS
 baseurl=https://dl.rockylinux.org/vault/rocky/$ver/BaseOS/\$basearch/os/
@@ -294,6 +294,16 @@ countme=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
 EOM
   sudo cp build/powertools-$ver.repo /etc/yum.repos.d/
+
+  cat<<EOM > build/local-epel.repo
+[local-epel]
+name=Extra Packages for Enterprise Linux 8.10 - Local repo
+baseurl=file:///var/www/html/repo/epel
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-rockyofficial
+EOM
+  sudo cp build/local-epel.repo /etc/yum.repos.d/
 }
 
 function sync_repo()
@@ -438,7 +448,6 @@ function build_repo()
       local destinations=(
       "/var/www/html/repo/rocky$dst_ver/appstream-$dst_ver"
       "/var/www/html/repo/rocky$dst_ver/baseos-$dst_ver"
-      "/var/www/html/repo/rocky$dst_ver/epel-$dst_ver"
       "/var/www/html/repo/rocky$dst_ver/extras-$dst_ver"
       "/var/www/html/repo/rocky$dst_ver/powertools-$dst_ver"
       )
