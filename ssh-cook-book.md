@@ -60,5 +60,5 @@ ubuntu 이미지는 아래와 같이 조치해도 됨
 cat<<EOM | sudo tee -a /etc/ssh/sshd_config
 PubkeyAcceptedKeyTypes +ssh-rsa
 EOM
-sudo systemctl restart sshd
+sudo systemctl restart ssh
 ```
