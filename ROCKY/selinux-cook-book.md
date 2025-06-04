@@ -113,6 +113,28 @@ cats   : <empty>                                    ## }
 Command ('m' for menu):
 ```
 
+## vpp_policy 파일 편집
+   
+추출한 .te 파일에 rule 을 추가하여 .pp 파일을 새로 생성할 수 있다. <br>
+
+편집된 .te 파일을 컴파일할 도구를 설치한다. <br>
+
+```
+sudo dnf install selinux-policy-devel
+```
+
+예를 들어 .te 파일을 편집 후 아래와 같이 빌드 한다. <br>
+아래의 순서대로 확장자를 가진 파일이 생성된다. <br>
+. te -> .mod -> .pp 
+```
+RULE=vpp_fix10
+```
+
+```
+checkmodule -M -m -o ${RULE}.mod ${RULE}.te
+semodule_package -o ${RULE}.pp -m ${RULE}.mod
+```
+
 ## vpp_policy 파일 적용
 
 앞에서 생성된 정책을 적용한다.

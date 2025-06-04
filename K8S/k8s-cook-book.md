@@ -329,6 +329,20 @@ cat pod.evicted.json \
   | kubectl delete -f -
 ```
 
+delete pods with pending status
+```
+kubectl get pods -A \
+  --field-selector=status.phase=Pending \
+  -o yaml | kubectl delete -f -
+```
+
+delete pods with Completed status
+```
+kubectl get pods -A \
+  --field-selector=status.phase=Completed \
+  -o yaml | kubectl delete -f -
+```
+
 ### print reason of pods not running 
 
 ```
