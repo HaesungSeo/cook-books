@@ -329,18 +329,65 @@ cat pod.evicted.json \
   | kubectl delete -f -
 ```
 
-delete pods with pending status
+### print pod ContainerStatusUnknown
 ```
-kubectl get pods -A \
-  --field-selector=status.phase=Pending \
-  -o yaml | kubectl delete -f -
+cat pod.json \
+  | jq -r '[.items[] | select(.status.containerStatuses[].state.terminated.reason=="ContainerStatusUnknown")]' \
+  > pod.containerstatusunknown.json
 ```
 
-delete pods with Completed status
+### print message of ContainerStatusUnknown pod
 ```
-kubectl get pods -A \
-  --field-selector=status.phase=Completed \
-  -o yaml | kubectl delete -f -
+cat pod.containerstatusunknown.json \
+  | jq -r '[.[] | {ns: .metadata.namespace, name: .metadata.name, reason: .status.message}]' \
+  > pod.containerstatusunknown-name-reason.json
+```
+
+delete pods evicted
+```
+jq -r '.[] | "\(.metadata.namespace) \(.metadata.name)"' pod.containerstatusunknown.json \
+| xargs -r -n2 kubectl delete pod -n
+```
+
+
+### print pod Error
+```
+cat pod.json \
+  | jq -r '[.items[] | select(.status.containerStatuses[].state.terminated.reason=="Error")]' \
+  > pod.error.json
+```
+
+### print message of Error pod
+```
+cat pod.error.json \
+  | jq -r '[.[] | {ns: .metadata.namespace, name: .metadata.name, reason: .status.message}]' \
+  > pod.error-name-reason.json
+```
+
+delete pods Error
+```
+jq -r '.[] | "\(.metadata.namespace) \(.metadata.name)"' pod.error.json \
+| xargs -r -n2 kubectl delete pod -n
+```
+
+### print pod Completed
+```
+cat pod.json \
+  | jq -r '[.items[] | select(.status.containerStatuses[].state.terminated.reason=="Completed")]' \
+  > pod.completed.json
+```
+
+### print message of Error pod
+```
+cat pod.completed.json \
+  | jq -r '[.[] | {ns: .metadata.namespace, name: .metadata.name, reason: .status.message}]' \
+  > pod.completed-name-reason.json
+```
+
+delete pods Error
+```
+jq -r '.[] | "\(.metadata.namespace) \(.metadata.name)"' pod.completed.json \
+| xargs -r -n2 kubectl delete pod -n
 ```
 
 ### print reason of pods not running 

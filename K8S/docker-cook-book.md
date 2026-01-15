@@ -1,45 +1,46 @@
 <H1>docker cook book</H1>
 
 - [docker 설치](#docker-설치)
-	- [설치 @centos7.4](#설치-centos74)
-	- [설치 @rocky8.8](#설치-rocky88)
-	- [설치 @ubuntu 22.04 TLS](#설치-ubuntu-2204-tls)
+  - [설치 @centos7.4](#설치-centos74)
+  - [설치 @rocky8.8](#설치-rocky88)
+    - [rootless 실행](#rootless-실행)
+  - [설치 @ubuntu 22.04 LTS](#설치-ubuntu-2204-lts)
 - [docker 명령어 예제](#docker-명령어-예제)
-	- [도커 기반 이미지 검색](#도커-기반-이미지-검색)
-	- [도커 이미지 다운로드](#도커-이미지-다운로드)
-	- [도커 이미지 리스트](#도커-이미지-리스트)
-	- [도커 컨테이너 이미지 변경사항 조회](#도커-컨테이너-이미지-변경사항-조회)
-	- [도커 이미지 삭제](#도커-이미지-삭제)
-	- [도커 이미지 로컬 파일로 추출](#도커-이미지-로컬-파일로-추출)
-	- [도커 이미지 파일 압축/해제](#도커-이미지-파일-압축해제)
-	- [도커 이미지 태깅](#도커-이미지-태깅)
-	- [docker image 로드하기 (파일)](#docker-image-로드하기-파일)
-	- [도커 컨테이너 실행](#도커-컨테이너-실행)
-		- [아래 예제는 5G\_Probe 의 xdr 을 mysql db로 로드한 docker 이미지를 실행하는 예제](#아래-예제는-5g_probe-의-xdr-을-mysql-db로-로드한-docker-이미지를-실행하는-예제)
-	- [도커 컨테이너 리스트](#도커-컨테이너-리스트)
-	- [도커 컨테이너 정지/재시작](#도커-컨테이너-정지재시작)
-	- [도커 컨테이너 삭제](#도커-컨테이너-삭제)
-	- [도커 컨테이너 IP주소 알아내기](#도커-컨테이너-ip주소-알아내기)
-	- [도커 컨테이너 instance 확인하기](#도커-컨테이너-instance-확인하기)
-	- [docker 로 msyql 서비스를 로드한 경우 아래와 같이 접속 가능](#docker-로-msyql-서비스를-로드한-경우-아래와-같이-접속-가능)
-	- [docker volume 삭제](#docker-volume-삭제)
-		- [볼륨 조회](#볼륨-조회)
-		- [사용하지 않는 볼륨 제거](#사용하지-않는-볼륨-제거)
+  - [도커 기반 이미지 검색](#도커-기반-이미지-검색)
+  - [도커 이미지 다운로드](#도커-이미지-다운로드)
+  - [도커 이미지 리스트](#도커-이미지-리스트)
+  - [도커 컨테이너 이미지 변경사항 조회](#도커-컨테이너-이미지-변경사항-조회)
+  - [도커 이미지 삭제](#도커-이미지-삭제)
+  - [도커 이미지 로컬 파일로 추출](#도커-이미지-로컬-파일로-추출)
+  - [도커 이미지 파일 압축/해제](#도커-이미지-파일-압축해제)
+  - [도커 이미지 태깅](#도커-이미지-태깅)
+  - [docker image 로드하기 (파일)](#docker-image-로드하기-파일)
+  - [도커 컨테이너 실행](#도커-컨테이너-실행)
+    - [아래 예제는 5G\_Probe 의 xdr 을 mysql db로 로드한 docker 이미지를 실행하는 예제](#아래-예제는-5g_probe-의-xdr-을-mysql-db로-로드한-docker-이미지를-실행하는-예제)
+  - [도커 컨테이너 리스트](#도커-컨테이너-리스트)
+  - [도커 컨테이너 정지/재시작](#도커-컨테이너-정지재시작)
+  - [도커 컨테이너 삭제](#도커-컨테이너-삭제)
+  - [도커 컨테이너 IP주소 알아내기](#도커-컨테이너-ip주소-알아내기)
+  - [도커 컨테이너 instance 확인하기](#도커-컨테이너-instance-확인하기)
+  - [docker 로 msyql 서비스를 로드한 경우 아래와 같이 접속 가능](#docker-로-msyql-서비스를-로드한-경우-아래와-같이-접속-가능)
+  - [docker volume 삭제](#docker-volume-삭제)
+    - [볼륨 조회](#볼륨-조회)
+    - [사용하지 않는 볼륨 제거](#사용하지-않는-볼륨-제거)
 - [multi-architecture](#multi-architecture)
-	- [docker buildx](#docker-buildx)
-		- [private registry 의 ca.crt 정보를 복사](#private-registry-의-cacrt-정보를-복사)
-		- [buildkitd.toml 작성](#buildkitdtoml-작성)
-		- [buildx 런타임 실행](#buildx-런타임-실행)
-		- [buildx 런타임 상태 확인](#buildx-런타임-상태-확인)
-		- [buildx 를 이용하여 build, push!](#buildx-를-이용하여-build-push)
-		- [buildx 빌더 종료](#buildx-빌더-종료)
-	- [containerd, nerdctl, buildit](#containerd-nerdctl-buildit)
-		- [containerd 설치 @rocky 8.8](#containerd-설치-rocky-88)
-		- [삭제](#삭제)
-		- [private registry 를 위해 아래와 같이 입력한다.](#private-registry-를-위해-아래와-같이-입력한다)
-		- [nerdctl 설치](#nerdctl-설치)
-		- [buildkit 설치](#buildkit-설치)
-		- [buildkit 서비스 등록 및 실행](#buildkit-서비스-등록-및-실행)
+  - [docker buildx](#docker-buildx)
+    - [private registry 의 ca.crt 정보를 복사](#private-registry-의-cacrt-정보를-복사)
+    - [buildkitd.toml 작성](#buildkitdtoml-작성)
+    - [buildx 런타임 실행](#buildx-런타임-실행)
+    - [buildx 런타임 상태 확인](#buildx-런타임-상태-확인)
+    - [buildx 를 이용하여 build, push!](#buildx-를-이용하여-build-push)
+    - [buildx 빌더 종료](#buildx-빌더-종료)
+  - [containerd, nerdctl, buildit](#containerd-nerdctl-buildit)
+    - [containerd 설치 @rocky 8.8](#containerd-설치-rocky-88)
+    - [삭제](#삭제)
+    - [private registry 를 위해 아래와 같이 입력한다.](#private-registry-를-위해-아래와-같이-입력한다)
+    - [nerdctl 설치](#nerdctl-설치)
+    - [buildkit 설치](#buildkit-설치)
+    - [buildkit 서비스 등록 및 실행](#buildkit-서비스-등록-및-실행)
 
 
 # docker 설치
@@ -102,6 +103,8 @@ EOM
 sudo systemctl restart docker
 ```
 
+### rootless 실행
+
 none root 도 docker 명령어를 실행할 수 있도록 해당 사용자를 docker group 에 넣어준다.
 (해당 사용자로 다시 로그인해야 적용된다.)
 ```
@@ -109,8 +112,25 @@ sudo usermod -aG docker $(whoami)
 # login again, to take effect
 ```
 
+해당 계정에서 아래를 실행한다.
+```
+containerd-rootless-setuptool.sh install
+```
 
-## 설치 @ubuntu 22.04 TLS
+아래와 같이 에러가 발생하는 경우가 있다.
+```
+$ containerd-rootless-setuptool.sh install 
+[ERROR] Needs systemd (systemctl --user) 
+$
+```
+
+아래 명령을 실행한다.
+```
+sudo loginctl enable-linger <계정이름>
+```
+
+
+## 설치 @ubuntu 22.04 LTS
 
 apt-get 업데이트
 ```

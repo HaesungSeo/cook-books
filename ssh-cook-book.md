@@ -62,3 +62,9 @@ PubkeyAcceptedKeyTypes +ssh-rsa
 EOM
 sudo systemctl restart ssh
 ```
+
+rocky 9 이미지는 아래와 같이 조치한다
+```
+sudo update-crypto-policies --set LEGACY
+sudo reboot
+```
