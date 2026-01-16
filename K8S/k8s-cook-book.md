@@ -1,29 +1,36 @@
 <H1>kubernetes(k8s) cook book</H1>
 
 - [Print k8s objects](#print-k8s-objects)
-	- [print all k8s objects](#print-all-k8s-objects)
-	- [Print node lables](#print-node-lables)
-	- [print cluster info](#print-cluster-info)
-	- [print pod](#print-pod)
-		- [print pod not running](#print-pod-not-running)
-		- [print pod evicted](#print-pod-evicted)
-		- [print message of evicted pod](#print-message-of-evicted-pod)
-		- [print reason of pods not running](#print-reason-of-pods-not-running)
-	- [print service](#print-service)
-	- [print deployment](#print-deployment)
-		- [expose deployment as service NodePort](#expose-deployment-as-service-nodeport)
-	- [print replcation](#print-replcation)
-	- [print replicaset](#print-replicaset)
-	- [print host files used as k8s pod,pv](#print-host-files-used-as-k8s-podpv)
-	- [print persistent volume(pv)](#print-persistent-volumepv)
-	- [print persistent volume claim(pvc)](#print-persistent-volume-claimpvc)
-	- [print all objects into file](#print-all-objects-into-file)
+  - [print all k8s objects](#print-all-k8s-objects)
+  - [Print node lables](#print-node-lables)
+  - [print cluster info](#print-cluster-info)
+  - [print pod](#print-pod)
+    - [print pod not running](#print-pod-not-running)
+    - [print pod evicted](#print-pod-evicted)
+    - [print message of evicted pod](#print-message-of-evicted-pod)
+    - [print pod ContainerStatusUnknown](#print-pod-containerstatusunknown)
+    - [print message of ContainerStatusUnknown pod](#print-message-of-containerstatusunknown-pod)
+    - [print pod Error](#print-pod-error)
+    - [print message of Error pod](#print-message-of-error-pod)
+    - [print pod Completed](#print-pod-completed)
+    - [print message of Error pod](#print-message-of-error-pod-1)
+    - [print reason of pods not running](#print-reason-of-pods-not-running)
+  - [print service](#print-service)
+  - [print deployment](#print-deployment)
+    - [expose deployment as service NodePort](#expose-deployment-as-service-nodeport)
+  - [print replcation](#print-replcation)
+  - [print replicaset](#print-replicaset)
+  - [print host files used as k8s pod,pv](#print-host-files-used-as-k8s-podpv)
+  - [print persistent volume(pv)](#print-persistent-volumepv)
+  - [print persistent volume claim(pvc)](#print-persistent-volume-claimpvc)
+  - [print all objects into file](#print-all-objects-into-file)
 - [trouble shooing commands](#trouble-shooing-commands)
-	- [create and connect to pod](#create-and-connect-to-pod)
-	- [copy files inside pod to master node](#copy-files-inside-pod-to-master-node)
+  - [create and connect to pod](#create-and-connect-to-pod)
+  - [copy files inside pod to master node](#copy-files-inside-pod-to-master-node)
+  - [fix pod image and save (commit) to container images](#fix-pod-image-and-save-commit-to-container-images)
 - [garbase collection](#garbase-collection)
-	- [force delete namespace hanging](#force-delete-namespace-hanging)
-	- [containerd prune](#containerd-prune)
+  - [force delete namespace hanging](#force-delete-namespace-hanging)
+  - [containerd prune](#containerd-prune)
 
 
 # Print k8s objects 
@@ -682,6 +689,51 @@ example)
 ```
 kubectl cp <some-namespace>/<some-pod>:/tmp/foo /tmp/bar
 ```
+
+## fix pod image and save (commit) to container images
+
+
+```
+# run as root
+nerdctl -n k8s.io commit <CONTAINER_ID> <IMAGE_NAME>:<IMAGE_TAG>
+```
+
+ex)
+```
+[root@hsseo-es34-2-m01 ~]# nerdctl ps | grep ks-install
+de9ae1aab0ba    edgestack.harbor.core:32443/library/registry.gitlab.com/sonaproject/ks-installer:v3.4.1-infra-stable-3.4    "/shell-operator sta…"    19 minutes ago    Up                 k8s://petasus-system/ks-installer-956cff75f-7djxn/installer
+ab9dbf6d333d    registry.k8s.io/pause:3.10                                                                                  "/pause"                  19 minutes ago    Up                 k8s://petasus-system/ks-installer-956cff75f-7djxn
+[root@hsseo-es34-2-m01 ~]#
+[root@hsseo-es34-2-m01 ~]# kubectl -n petasus-system get pod ks-installer-956cff75f-7djxn -o yaml | grep de9ae1aab0ba
+    containerID: containerd://de9ae1aab0ba434114893c4df66d229ad72209679060129628b62c3341f2fcc0
+[root@hsseo-es34-2-m01 ~]#
+[root@hsseo-es34-2-m01 ~]# kubectl -n petasus-system get pod ks-installer-956cff75f-7djxn -o yaml | grep image
+  - image: edgestack.harbor.core:32443/library/registry.gitlab.com/sonaproject/ks-installer:v3.4.1-infra-stable-3.4
+    imagePullPolicy: IfNotPresent
+    image: edgestack.harbor.core:32443/library/registry.gitlab.com/sonaproject/ks-installer:v3.4.1-infra-stable-3.4
+    imageID: sha256:23ea0b321af1f46bd30ce0f19588dcd85d8a8884dee06581437c464e764e37dd
+[root@hsseo-es34-2-m01 ~]#
+```
+CONTAINER_ID=de9ae1aab0ba
+IMAGE_NAME:IMAGE_TAG=edgestack.harbor.core:32443/library/registry.gitlab.com/sonaproject/ks-installer:v3.4.1-infra-stable-3.4
+
+```
+# run as root
+
+# backup original
+IMAGE_NAME="edgestack.harbor.core:32443/library/registry.gitlab.com/sonaproject/ks-installer"
+IMAGE_TAG="v3.4.1-infra-stable-3.4"
+nerdctl -n k8s.io tag $IMAGE_NAME:${IMAGE_TAG} $IMAGE_NAME:${IMAGE_TAG}-20260116
+
+CONTAINER_ID=7cb138ba2b3a
+
+# baking image
+nerdctl -n k8s.io commit $CONTAINER_ID $IMAGE_NAME:${IMAGE_TAG}-fix
+
+# overrite fix
+nerdctl -n k8s.io tag $IMAGE_NAME:${IMAGE_TAG}-fix $IMAGE_NAME:$IMAGE_TAG 
+```
+
 
 
 # garbase collection 
